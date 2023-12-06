@@ -5,6 +5,7 @@ import hashlib
 import base64
 
 time_step = 30
+secret_key_file = "ft_otp.key"
 
 def is_hex_string(s):
 	try:
@@ -14,22 +15,30 @@ def is_hex_string(s):
 	except ValueError:
 		return False
 
+def id_valid_file(contents):
+	if len(contents) < 64:
+		print("./ft_otp: error: key must be at least 64 characters.")
+		return False
+	if not is_hex_string(contents):
+		print("./ft_otp: error: key must be hexadecimal characters.")
+		return False
+	return True
+
 def generate_shared_secret_key(key_hex_file):
 	try:
 		with open(key_hex_file, 'r') as f:
 			contents = f.read()
-			if len(contents) < 64:
-				print("./ft_otp: error: key must be at least 64 characters.")
-				exit(1)
 			if not is_hex_string(contents):
-				print("./ft_otp: error: key must be hexadecimal characters.")
-				exit(1)
+				return
 			print("Contents:", contents)
-			hashed = hashlib.sha1(contents.encode('utf-8'))
-			print("Hashed:", hashed.hexdigest())
-			print("len:", len(hashed.hexdigest()))
-			encoded = base64.b32encode(hashed.digest())
-			print("Encoded:", encoded)
+		hashed = hashlib.sha1(contents.encode())
+		print("Hashed:", hashed.hexdigest())
+		print("len:", len(hashed.hexdigest()))
+		encoded = base64.b32encode(hashed.digest())
+		print("Encoded:", encoded)
+		with open(secret_key_file, "w") as f:
+			f.write(encoded.decode())
+
 		print("Key was successfully saved in ft_otp.key.")
 
 	except Exception as e:

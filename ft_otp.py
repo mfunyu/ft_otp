@@ -3,9 +3,12 @@ import argparse
 import time
 import hashlib
 import base64
+import qrcode
 
 time_step = 30
 secret_key_file = "ft_otp.key"
+issuer = "ft_otp"
+email = "ft_otp@example.com"
 
 def is_hex_string(s):
 	try:
@@ -24,6 +27,11 @@ def id_valid_file(contents):
 		return False
 	return True
 
+def create_qrcode(secret_key):
+	data = f'otpauth://totp/{issuer}:{email}?secret={secret_key}&issuer={issuer}'
+	img = qrcode.make(data)
+	img.save("ft_opt.png")
+
 def generate_shared_secret_key(key_hex_file):
 	try:
 		with open(key_hex_file, 'r') as f:
@@ -34,12 +42,13 @@ def generate_shared_secret_key(key_hex_file):
 		hashed = hashlib.sha1(contents.encode())
 		print("Hashed:", hashed.hexdigest())
 		print("len:", len(hashed.hexdigest()))
-		encoded = base64.b32encode(hashed.digest())
+		encoded = base64.b32encode(hashed.digest()).decode()
 		print("Encoded:", encoded)
 		with open(secret_key_file, "w") as f:
-			f.write(encoded.decode())
-
-		print("Key was successfully saved in ft_otp.key.")
+			f.write(encoded)
+		print("Key was successfully saved in ft_otp.key")
+		create_qrcode(encoded)
+		print("QRcode can be found in ft_otp.png")
 
 	except Exception as e:
 		print(f"Error: {e}")

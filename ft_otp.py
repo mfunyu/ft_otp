@@ -5,7 +5,7 @@ def parse_args():
 	parser = argparse.ArgumentParser()
 	group = parser.add_mutually_exclusive_group(required=True)
 	group.add_argument("-g", type=str)
-	group.add_argument("-k", default="ft_otp.key", type=str)
+	group.add_argument("-k", type=str)
 	return parser.parse_args()
 
 def main():

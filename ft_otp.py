@@ -4,6 +4,7 @@ import time
 import hashlib
 import base64
 import qrcode
+import hmac
 
 time_step = 30
 secret_key_file = "ft_otp.key"
@@ -55,15 +56,35 @@ def generate_shared_secret_key(key_hex_file):
 
 def generate_otp(key_file):
 
+	with open(key_file, 'r') as f:
+		msg = f.read()
 	# time
 	timestamp = time.time()
 
 	N = int(timestamp // time_step)
 	print(N)
-	N_hex = hex(N)
-	print(N_hex)
-
-	# msg =
+	print(bin(N))
+	key = format(N, '0>64b')
+	#key = format(int(N, 16), "064b")
+	print(type(key))
+	print(key)
+	print(key.encode())
+	# print(f'{{key}:0>8b}')
+	#msg = 
+	hmac_sha1_hex = hmac.new(key.encode(), msg.encode(), hashlib.sha1).hexdigest()
+	print(hmac_sha1_hex)
+	offset = int(hmac_sha1_hex[-1], 16) # last 4 bits
+	chosen_bytes = hmac_sha1_hex[offset * 2:]
+	print(offset)
+	print(chosen_bytes)
+	new_bin_value = format(int(chosen_bytes[0:2], 16) & int(0x7F), 'x') \
+				+ format(int(chosen_bytes[2:4], 16) & int(0xFF), 'x') \
+				+ format(int(chosen_bytes[4:6], 16) & int(0xFF), 'x') \
+				+ format(int(chosen_bytes[6:8], 16) & int(0xFF), 'x')
+	print(type(new_bin_value))
+	print(new_bin_value)
+	token = int(new_bin_value, 16) & 1000000
+	print(token)
 	# generate HMAC hash
 
 

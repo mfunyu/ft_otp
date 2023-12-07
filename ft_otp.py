@@ -20,7 +20,7 @@ def is_hex_string(s):
 	except ValueError:
 		return False
 
-def id_valid_file(contents):
+def is_valid_file(contents):
 	if len(contents) < 64:
 		print("./ft_otp: error: key must be at least 64 characters.")
 		return False

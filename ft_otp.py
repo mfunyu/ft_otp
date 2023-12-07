@@ -84,23 +84,22 @@ def generate_otp(key_file):
 	print(key)
 	print(key.encode())
 	# print(f'{{key}:0>8b}')
-	
+
 	hmac_sha1 = hmac.new(key.encode(), msg.encode(), hashlib.sha1)
 	hmac_sha1_bytes = hmac_sha1.digest()
 	offset = hmac_sha1_bytes[-1] & 0xF # last 4 bits
 	chosen_bytes = hmac_sha1_bytes[offset:offset+4]
+
 	debug_print(hmac_sha1, offset, chosen_bytes)
 
-	# new_bin_value = format(int(chosen_bytes[0:2], 16) & int(0x7F), 'x') \
-	# 			+ format(int(chosen_bytes[2:4], 16) & int(0xFF), 'x') \
-	# 			+ format(int(chosen_bytes[4:6], 16) & int(0xFF), 'x') \
-	# 			+ format(int(chosen_bytes[6:8], 16) & int(0xFF), 'x')
-	# print(type(new_bin_value))
-	# print(new_bin_value)
-	# token = int(new_bin_value, 16) & 1000000
-	# print(token)
-	# generate HMAC hash
-
+	new_bin_value = ((chosen_bytes[0] & 0x7F) << 16)\
+					+ ((chosen_bytes[1] & 0xFF) << 8)\
+					+ ((chosen_bytes[2] & 0xFF) << 4)\
+					+ ((chosen_bytes[3] & 0xFF))
+	print(new_bin_value)
+	token = new_bin_value % 10**6
+	token = f'{token:0>6}'
+	print(token)
 
 def parse_args():
 	parser = argparse.ArgumentParser()

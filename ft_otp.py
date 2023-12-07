@@ -40,12 +40,8 @@ def generate_shared_secret_key(key_hex_file):
 			contents = f.read()
 			if not is_hex_string(contents):
 				return
-			print("Contents:", contents)
 		hashed = hashlib.sha1(contents.encode())
-		print("Hashed:", hashed.hexdigest())
-		print("len:", len(hashed.hexdigest()))
 		encoded = base64.b32encode(hashed.digest()).decode()
-		print("Encoded:", encoded)
 		with open(secret_key_file, "w") as f:
 			f.write(encoded)
 		print("Key was successfully saved in ft_otp.key")
@@ -80,10 +76,10 @@ def generate_otp(key_file):
 
 	hmac_sha1 = hmac.new(secret_decoded, time_key, hashlib.sha1)
 	hmac_sha1_bytes = hmac_sha1.digest()
-	offset = hmac_sha1_bytes[-1] & 0xF # last 4 bits
+	offset = hmac_sha1_bytes[-1] & 0xF
 	chosen_bytes = hmac_sha1_bytes[offset:offset+4]
 
-	debug_print(hmac_sha1, offset, chosen_bytes)
+	#debug_print(hmac_sha1, offset, chosen_bytes)
 
 	new_bin_value = ((chosen_bytes[0] & 0x7F) << 24)\
 					+ ((chosen_bytes[1] & 0xFF) << 16)\

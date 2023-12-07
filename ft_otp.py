@@ -39,7 +39,7 @@ def generate_shared_secret_key(key_hex_file):
 	try:
 		with open(key_hex_file, 'r') as f:
 			contents = f.read().strip()
-			if not is_hex_string(contents):
+			if not is_valid_file(contents):
 				return
 		hashed = hashlib.sha1(contents.encode())
 		encoded = base64.b32encode(hashed.digest()).decode()

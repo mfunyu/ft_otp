@@ -71,35 +71,32 @@ def debug_print(hmac_sha1, offset, chosen_bytes):
 def generate_otp(key_file):
 
 	with open(key_file, 'r') as f:
-		msg = f.read()
+		secret = f.read()
 	# time
+	secret = "JBSWY3DPEBLW64TMMQQQ===="
+	print("secret:", secret)
+	secret_decoded = base64.b32decode(secret)
+
 	timestamp = time.time()
-
 	N = int(timestamp // time_step)
-	print(N)
-	print(bin(N))
-	key = format(N, '0>64b')
-	#key = format(int(N, 16), "064b")
-	print(type(key))
-	print(key)
-	print(key.encode())
-	# print(f'{{key}:0>8b}')
+	N = 52912937
+	time_key = N.to_bytes(8, "big")
 
-	hmac_sha1 = hmac.new(key.encode(), msg.encode(), hashlib.sha1)
+	hmac_sha1 = hmac.new(secret_decoded, time_key, hashlib.sha1)
 	hmac_sha1_bytes = hmac_sha1.digest()
 	offset = hmac_sha1_bytes[-1] & 0xF # last 4 bits
 	chosen_bytes = hmac_sha1_bytes[offset:offset+4]
 
 	debug_print(hmac_sha1, offset, chosen_bytes)
 
-	new_bin_value = ((chosen_bytes[0] & 0x7F) << 16)\
-					+ ((chosen_bytes[1] & 0xFF) << 8)\
-					+ ((chosen_bytes[2] & 0xFF) << 4)\
+	new_bin_value = ((chosen_bytes[0] & 0x7F) << 24)\
+					+ ((chosen_bytes[1] & 0xFF) << 16)\
+					+ ((chosen_bytes[2] & 0xFF) << 8)\
 					+ ((chosen_bytes[3] & 0xFF))
 	print(new_bin_value)
 	token = new_bin_value % 10**6
 	token = f'{token:0>6}'
-	print(token)
+	print(f"Here is your OTP: [{token}]")
 
 def parse_args():
 	parser = argparse.ArgumentParser()

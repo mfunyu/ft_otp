@@ -5,6 +5,7 @@ import hashlib
 import base64
 import qrcode
 import hmac
+import struct
 
 time_step = 30
 secret_key_file = "ft_otp.key"
@@ -72,14 +73,9 @@ def generate_otp(key_file):
 
 	with open(key_file, 'r') as f:
 		secret = f.read()
-	# time
-	secret = "JBSWY3DPEBLW64TMMQQQ===="
-	print("secret:", secret)
 	secret_decoded = base64.b32decode(secret)
-
 	timestamp = time.time()
 	N = int(timestamp // time_step)
-	N = 52912937
 	time_key = N.to_bytes(8, "big")
 
 	hmac_sha1 = hmac.new(secret_decoded, time_key, hashlib.sha1)
@@ -93,7 +89,6 @@ def generate_otp(key_file):
 					+ ((chosen_bytes[1] & 0xFF) << 16)\
 					+ ((chosen_bytes[2] & 0xFF) << 8)\
 					+ ((chosen_bytes[3] & 0xFF))
-	print(new_bin_value)
 	token = new_bin_value % 10**6
 	token = f'{token:0>6}'
 	print(f"Here is your OTP: [{token}]")
